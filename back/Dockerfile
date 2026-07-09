@@ -5,7 +5,7 @@ RUN corepack enable
 FROM base AS builder
 WORKDIR /app
 COPY . .
-RUN pnpm install --frozen-lockfile --config.store-security=false && pnpm build
+RUN pnpm install --frozen-lockfile && pnpm build
 
 FROM base AS runner
 WORKDIR /app
