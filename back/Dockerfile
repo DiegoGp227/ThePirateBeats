@@ -3,6 +3,7 @@ RUN apk add --no-cache yt-dlp ffmpeg
 RUN corepack enable
 
 FROM base AS builder
+ENV PNPM_CONFIG_STORE_SECURITY=false
 WORKDIR /app
 COPY . .
 RUN pnpm install --frozen-lockfile && pnpm build
