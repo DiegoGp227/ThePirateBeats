@@ -15,7 +15,7 @@ export interface VideoInfo {
 
 export function getInfo(url: string): Promise<VideoInfo> {
   return new Promise((resolve, reject) => {
-    const proc = spawn("yt-dlp", ["--dump-json", url]);
+    const proc = spawn("yt-dlp", ["--dump-json", "--playlist-items", "1", url]);
     let stdout = "";
     let stderr = "";
 
@@ -33,7 +33,8 @@ export function getInfo(url: string): Promise<VideoInfo> {
         return;
       }
       try {
-        const data = JSON.parse(stdout);
+        const firstLine = stdout.trim().split("\n")[0];
+        const data = JSON.parse(firstLine);
         resolve({
           title: data.title,
           thumbnail: data.thumbnail,
