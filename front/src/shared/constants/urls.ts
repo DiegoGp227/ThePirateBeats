@@ -1,5 +1,5 @@
 export const BaseURL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/";
 
 export const InfoURL = new URL("info", BaseURL);
 export const DownloadURL = new URL("download", BaseURL);
