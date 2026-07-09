@@ -1,13 +1,31 @@
 services:
-  backend:
+  back:
     build:
       context: ./back
-    container_name: pirate-beats-backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: 8000
     ports:
-      - "8000:8000"
+      - "${BACK_PORT:-4004}:8000"
     volumes:
       - downloads:/app/downloads
+
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://back:8000/api/}
     restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${FRONT_PORT:-5004}:3000"
+    depends_on:
+      - back
 
 volumes:
   downloads:
