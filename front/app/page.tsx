@@ -1,5 +1,7 @@
 import Image from "next/image";
 import UrlSIstem from "./components/organism/UrlSIstem";
+import HistorySistem from "./components/organism/HistorySistem";
+import PlayerSistem from "./components/organism/PlayerSistem";
 
 export default function HomePage() {
     return (
@@ -10,14 +12,14 @@ export default function HomePage() {
                     width={0}
                     height={0}
                     sizes="100vw"
-                    style={{ width: '400px', height: 'auto' }}
+                    style={{ width: '500px', height: 'auto' }}
                     alt="ThePirateBeats Image"
                     loading="eager"
                 />
             </div>
             <UrlSIstem />
-            <UrlSIstem />
-
+            <HistorySistem />
+            <PlayerSistem />
         </main>
     )
 }
