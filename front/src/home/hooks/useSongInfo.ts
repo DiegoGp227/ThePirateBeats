@@ -22,7 +22,7 @@ export function useSongInfo() {
         duration: formatDuration(info.duration),
       };
       setInfo(song, url);
-      pushSong(song);
+      pushSong(song, url);
       return info;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error fetching video info";

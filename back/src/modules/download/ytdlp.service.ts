@@ -58,6 +58,7 @@ export function startDownload(url: string, jobId: string): void {
     "mp3",
     "--audio-quality",
     "0",
+    "--no-playlist",
     "--newline",
     "-o",
     outputTemplate,

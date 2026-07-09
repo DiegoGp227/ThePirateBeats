@@ -23,6 +23,7 @@ interface DownloadStore {
   history: DownloadJob[];
 
   setInfo: (info: SongInfo, url: string) => void;
+  selectSong: (info: SongInfo, url?: string) => void;
   startDownload: (jobId: string) => void;
   updateProgress: (progress: number) => void;
   setDone: () => void;
@@ -41,6 +42,17 @@ export const useDownloadStore = create<DownloadStore>((set) => ({
         jobId: "",
         url,
         status: "pending",
+        progress: 0,
+        info,
+      },
+    }),
+
+  selectSong: (info, url) =>
+    set({
+      currentJob: {
+        jobId: "",
+        url: url ?? "",
+        status: "idle",
         progress: 0,
         info,
       },
