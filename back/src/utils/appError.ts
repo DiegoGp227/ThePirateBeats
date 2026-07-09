@@ -1,0 +1,52 @@
+export class AppError extends Error {
+  public readonly statusCode: number;
+  public readonly code: string;
+  public readonly isOperational: boolean;
+  public readonly timestamp: Date;
+  public readonly details?: any;
+
+  constructor(
+    message: string,
+    statusCode: number = 500,
+    code: string = "INTERNAL_ERROR",
+    isOperational: boolean = true,
+    details?: any,
+  ) {
+    super(message);
+    Object.setPrototypeOf(this, AppError.prototype);
+    this.statusCode = statusCode;
+    this.code = code;
+    this.isOperational = isOperational;
+    this.timestamp = new Date();
+    this.details = details;
+    Error.captureStackTrace(this, this.constructor);
+  }
+
+  toJSON() {
+    return {
+      status: "error",
+      code: this.code,
+      message: this.message,
+      ...(this.details && { details: this.details }),
+      timestamp: this.timestamp.toISOString(),
+    };
+  }
+}
+
+export class BadRequestError extends AppError {
+  constructor(message: string = "Bad request", details?: any) {
+    super(message, 400, "BAD_REQUEST", true, details);
+  }
+}
+
+export class NotFoundError extends AppError {
+  constructor(resource: string = "Resource", details?: any) {
+    super(`${resource} not found`, 404, "NOT_FOUND", true, details);
+  }
+}
+
+export class InternalServerError extends AppError {
+  constructor(message: string = "Internal server error", details?: any) {
+    super(message, 500, "INTERNAL_ERROR", false, details);
+  }
+}
