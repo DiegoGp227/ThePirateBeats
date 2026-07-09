@@ -4,10 +4,9 @@ RUN corepack enable
 FROM base AS builder
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
-ENV PNPM_CONFIG_STORE_SECURITY=false
 WORKDIR /app
 COPY . .
-RUN pnpm install --frozen-lockfile && pnpm build
+RUN pnpm install --frozen-lockfile --config.store-security=false && pnpm build
 
 FROM base AS runner
 WORKDIR /app
