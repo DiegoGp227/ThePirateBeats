@@ -1,12 +1,17 @@
 "use client";
 import { useForm } from "react-hook-form"
 import { useSongInfo } from "../hooks/useSongInfo"
+import { useEffect } from "react";
 
 type FormData = {
     url: string
 }
 
-export default function UrlForm() {
+interface UrlFormProps {
+    setTextInfo: React.Dispatch<React.SetStateAction<string>>;
+}
+
+export default function UrlForm({ setTextInfo }: UrlFormProps) {
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>()
 
     const { error, getInfo, loading } = useSongInfo()
@@ -14,6 +19,12 @@ export default function UrlForm() {
     const onSubmit = (data: FormData) => {
         getInfo(data.url)
     }
+
+    useEffect(() => {
+        const msg = errors.url ? "URL is required" : (error ?? "Paste a YouTube or SoundCloud link to get started")
+        setTextInfo(msg)
+    }, [errors.url?.type, error, setTextInfo]);
+
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col">
@@ -32,12 +43,6 @@ export default function UrlForm() {
                     {loading ? "Loading..." : "Send"}
                 </button>
             </div>
-            {errors.url && (
-                <span className="text-red-bright text-sm mt-1">URL is required</span>
-            )}
-            {error && (
-                <span className="text-red-bright text-sm mt-1">{error}</span>
-            )}
         </form>
     )
 }

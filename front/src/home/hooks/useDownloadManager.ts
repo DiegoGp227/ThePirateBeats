@@ -20,7 +20,7 @@ export function useDownloadManager() {
 
       esRef.current?.close();
 
-      const es = new EventSource(`${BaseURL}/progress/${jobId}`);
+      const es = new EventSource(`${BaseURL}progress/${jobId}`);
       esRef.current = es;
 
       es.onmessage = (event) => {

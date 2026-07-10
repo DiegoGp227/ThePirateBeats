@@ -1,16 +1,19 @@
+"use client"
 import UrlForm from "@/src/home/forms/UrlForm";
+import { useState } from "react";
 
 export default function UrlSIstem() {
+    const [textInfo, setTextInfo] = useState<string>("Paste a YouTube or SoundCloud link to get started")
     return (
         <div className="max-w-240 w-full border border-border-dim">
             <div className="bg-surface px-3 py-1 w-full">
                 <span className="text-text-dim">URL DROP</span>
             </div>
             <div className="bg-bg-white p-5 border-y border-border-dim">
-                <UrlForm />
+                <UrlForm setTextInfo={setTextInfo} />
             </div>
             <div className="px-3 py-1">
-                <span className="text-red-bright">url drop</span>
+                <span className="text-red-bright">{textInfo}</span>
             </div>
         </div>
     )

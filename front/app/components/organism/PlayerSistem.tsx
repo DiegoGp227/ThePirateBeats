@@ -19,7 +19,7 @@ export default function PlayerSistem() {
   const isDone = currentJob?.status === "done";
   const isError = currentJob?.status === "error";
 
-  const fileUrl = currentJob?.jobId ? `${BaseURL}/file/${currentJob.jobId}` : "";
+  const fileUrl = currentJob?.jobId ? `${BaseURL}file/${currentJob.jobId}` : "";
 
   useEffect(() => {
     if (!audioRef.current) {
@@ -153,7 +153,7 @@ export default function PlayerSistem() {
               />
             </div>
           </div>
-          <span className="text-text-dim text-[0.6rem] font-mono min-w-[90px] text-right">
+          <span className="text-text-dim text-[0.6rem] font-mono min-w-22.5 text-right">
             {timeDisplay}
           </span>
           {isDone && fileUrl && (
