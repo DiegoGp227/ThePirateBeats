@@ -26,7 +26,7 @@ export default function PlayerSystem() {
 
   const fileUrl = currentJob?.jobId ? `${BaseURL}file/${currentJob.jobId}` : "";
 
-  const { playing, progress, duration, togglePlay } = useAudioPlayer(fileUrl, isDone);
+  const { playing, progress, duration, error: audioError, togglePlay } = useAudioPlayer(fileUrl, isDone);
 
   useEffect(() => {
     if (currentJob?.status === "pending" || currentJob?.status === "idle") {
@@ -37,7 +37,7 @@ export default function PlayerSystem() {
   }, [currentJob?.status, currentJob?.url, currentJob?.info, startDownload]);
 
   const fileReady = isDone && duration > 0;
-  const showLoader = !fileReady && !isError;
+  const showLoader = !fileReady && !isError && !audioError;
 
   const progressWidth = fileReady
     ? duration > 0 ? (progress / duration) * 100 : 0
@@ -48,8 +48,9 @@ export default function PlayerSystem() {
     : isDownloading
       ? `Downloading ${Math.round(currentJob?.progress ?? 0)}%`
       : isDone
-        ? "Loading audio..."
-        : "—";
+        ? audioError ? "Audio error"
+        : "Loading audio..."
+      : "—";
 
   if (!currentJob?.info) return null;
 
@@ -117,9 +118,9 @@ export default function PlayerSystem() {
             </a>
           )}
         </div>
-        {isError && currentJob.error && (
-          <p className="text-red-bright text-xs mt-2">{currentJob.error}</p>
-        )}
+        {(isError && currentJob.error) || audioError ? (
+          <p className="text-red-bright text-xs mt-2">{currentJob.error || audioError}</p>
+        ) : null}
       </div>
     </div>
   );

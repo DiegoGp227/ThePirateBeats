@@ -27,26 +27,22 @@ export function useSongInfo() {
     setLoading(true);
     setError(null);
 
-    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-      try {
-        const info: VideoInfo = await fetchVideoInfo(url);
-        const song = {
-          title: info.title,
-          thumbnail: info.thumbnail,
-          duration: formatTime(info.duration),
-        };
-        setInfo(song, url);
-        pushSong(song, url);
-        return info;
-      } catch (err) {
-        if (attempt < MAX_RETRIES - 1) {
-          await new Promise((r) => setTimeout(r, RETRY_BASE_MS * (attempt + 1)));
-        } else {
-          setError(getErrorMessage(err));
-        }
-      }
+    try {
+      const info: VideoInfo = await fetchVideoInfo(url);
+      const song = {
+        title: info.title,
+        thumbnail: info.thumbnail,
+        duration: formatTime(info.duration),
+      };
+      setInfo(song, url);
+      pushSong(song, url);
+      return info;
+    } catch (err) {
+      setError(getErrorMessage(err));
+      return null;
+    } finally {
+      setLoading(false);
     }
-    return null;
   };
 
   return { getInfo, loading, error };
