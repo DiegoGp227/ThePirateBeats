@@ -1,100 +1,55 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import { useDownloadStore } from "@/store/download.store";
 import { useDownloadManager } from "@/src/home/hooks/useDownloadManager";
+import { useAudioPlayer } from "@/src/home/hooks/useAudioPlayer";
+import { formatTime } from "@/src/shared/utils/formatTime";
 import { BaseURL } from "@/src/shared/constants/urls";
 
-export default function PlayerSistem() {
+function Spinner({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`block border-2 border-text border-t-red-light rounded-full animate-spin ${className}`}
+    />
+  );
+}
+
+export default function PlayerSystem() {
   const currentJob = useDownloadStore((s) => s.currentJob);
   const { startDownload } = useDownloadManager();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [playing, setPlaying] = useState(false);
-  const [audioProgress, setAudioProgress] = useState(0);
-  const [audioDuration, setAudioDuration] = useState(0);
 
   const isDownloading = currentJob?.status === "downloading";
-  const isPending = currentJob?.status === "pending" || currentJob?.status === "idle";
   const isDone = currentJob?.status === "done";
   const isError = currentJob?.status === "error";
 
   const fileUrl = currentJob?.jobId ? `${BaseURL}file/${currentJob.jobId}` : "";
 
-  useEffect(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio();
-    }
-    return () => {
-      audioRef.current?.pause();
-      audioRef.current = null;
-    };
-  }, []);
+  const { playing, progress, duration, togglePlay } = useAudioPlayer(fileUrl, isDone);
 
   useEffect(() => {
-    if (isDone && fileUrl) {
-      const audio = audioRef.current;
-      if (!audio) return;
-      audio.src = fileUrl;
-      audio.load();
-      setPlaying(false);
-      setAudioProgress(0);
+    if (currentJob?.status === "pending" || currentJob?.status === "idle") {
+      if (currentJob?.url && currentJob?.info) {
+        startDownload();
+      }
     }
-  }, [isDone, fileUrl]);
+  }, [currentJob?.status, currentJob?.url, currentJob?.info, startDownload]);
 
-  const togglePlay = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+  const fileReady = isDone && duration > 0;
+  const showLoader = !fileReady && !isError;
 
-    if (playing) {
-      audio.pause();
-    } else {
-      audio.play().catch(() => {});
-    }
-    setPlaying(!playing);
-  }, [playing]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const onTimeUpdate = () => {
-      setAudioProgress(audio.currentTime);
-    };
-    const onLoadedMeta = () => {
-      setAudioDuration(audio.duration);
-    };
-    const onEnded = () => {
-      setPlaying(false);
-      setAudioProgress(0);
-    };
-
-    audio.addEventListener("timeupdate", onTimeUpdate);
-    audio.addEventListener("loadedmetadata", onLoadedMeta);
-    audio.addEventListener("ended", onEnded);
-
-    return () => {
-      audio.removeEventListener("timeupdate", onTimeUpdate);
-      audio.removeEventListener("loadedmetadata", onLoadedMeta);
-      audio.removeEventListener("ended", onEnded);
-    };
-  }, [isDone, fileUrl]);
-
-  const formatTime = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return `${m}:${sec.toString().padStart(2, "0")}`;
-  };
-
-  const progressWidth = isDone
-    ? audioDuration > 0 ? (audioProgress / audioDuration) * 100 : 0
+  const progressWidth = fileReady
+    ? duration > 0 ? (progress / duration) * 100 : 0
     : currentJob?.progress ?? 0;
 
-  const timeDisplay = isDone
-    ? `${formatTime(audioProgress)} / ${formatTime(audioDuration)}`
-    : currentJob?.status === "downloading"
+  const timeDisplay = fileReady
+    ? `${formatTime(progress)} / ${formatTime(duration)}`
+    : isDownloading
       ? `Downloading ${Math.round(currentJob?.progress ?? 0)}%`
-      : "—";
+      : isDone
+        ? "Loading audio..."
+        : "—";
 
   if (!currentJob?.info) return null;
 
@@ -106,6 +61,18 @@ export default function PlayerSistem() {
       </div>
       <div className="bg-bg-white p-5 border-t border-border-dim">
         <div className="flex items-center gap-4 mb-4">
+          {fileReady ? (
+            <button
+              onClick={togglePlay}
+              className="w-10 h-10 shrink-0 border border-border bg-black text-text hover:border-red-dim hover:text-red-light flex items-center justify-center text-sm transition-all duration-150"
+            >
+              {playing ? "⏸" : "▶"}
+            </button>
+          ) : showLoader ? (
+            <div className="w-10 h-10 shrink-0 border border-border bg-black flex items-center justify-center">
+              <Spinner className="w-5 h-5" />
+            </div>
+          ) : null}
           {currentJob.info.thumbnail ? (
             <div className="w-10 h-10 shrink-0 overflow-hidden border border-border">
               <Image
@@ -129,24 +96,8 @@ export default function PlayerSistem() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {isDone ? (
-            <button
-              onClick={togglePlay}
-              className="w-8 h-8 shrink-0 border border-border bg-black text-text hover:border-red-dim hover:text-red-light flex items-center justify-center text-sm transition-all duration-150"
-            >
-              {playing ? "⏸" : "▶"}
-            </button>
-          ) : (
-            <button
-              onClick={startDownload}
-              disabled={isDownloading}
-              className="w-8 h-8 shrink-0 border border-border bg-black text-text hover:border-red-dim hover:text-red-light flex items-center justify-center text-sm transition-all duration-150 disabled:opacity-40"
-            >
-              ↓
-            </button>
-          )}
           <div className="flex-1 relative">
-            <div className="h-[3px] bg-black border border-border relative">
+            <div className="h-0.75 bg-black border border-border relative">
               <div
                 className="h-full bg-red-light transition-all duration-200"
                 style={{ width: `${progressWidth}%` }}
@@ -156,7 +107,7 @@ export default function PlayerSistem() {
           <span className="text-text-dim text-[0.6rem] font-mono min-w-22.5 text-right">
             {timeDisplay}
           </span>
-          {isDone && fileUrl && (
+          {fileReady && fileUrl && (
             <a
               href={fileUrl}
               download

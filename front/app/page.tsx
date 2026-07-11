@@ -1,7 +1,7 @@
 import Image from "next/image";
 import UrlSIstem from "./components/organism/UrlSIstem";
 import HistorySistem from "./components/organism/HistorySistem";
-import PlayerSistem from "./components/organism/PlayerSistem";
+import PlayerSystem from "./components/organism/PlayerSystem";
 
 export default function HomePage() {
     return (
@@ -19,7 +19,7 @@ export default function HomePage() {
             </div>
             <UrlSIstem />
             <HistorySistem />
-            <PlayerSistem />
+            <PlayerSystem />
         </main>
     )
 }

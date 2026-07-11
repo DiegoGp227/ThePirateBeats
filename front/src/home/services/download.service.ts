@@ -6,7 +6,7 @@ export async function fetchVideoInfo(url: string): Promise<VideoInfo> {
   return data;
 }
 
-export async function startDownload(url: string): Promise<DownloadResponse> {
-  const { data } = await apiClient.post<DownloadResponse>("download", { url });
+export async function startDownload(url: string, title?: string): Promise<DownloadResponse> {
+  const { data } = await apiClient.post<DownloadResponse>("download", { url, title });
   return data;
 }
