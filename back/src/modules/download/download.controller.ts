@@ -23,14 +23,14 @@ export async function infoHandler(req: Request, res: Response) {
 }
 
 export async function downloadHandler(req: Request, res: Response) {
-  const { url } = req.body;
+  const { url, title } = req.body;
 
   if (!url || !isValidYoutubeUrl(url)) {
     throw new BadRequestError("Invalid YouTube URL");
   }
 
   const jobId = uuidv4();
-  createJob(jobId);
+  createJob(jobId, title);
 
   startDownload(url, jobId);
 
@@ -73,6 +73,10 @@ export async function progressHandler(req: Request, res: Response) {
   });
 }
 
+function sanitizeFilename(name: string): string {
+  return name.replace(/[<>:"/\\|?*\x00-\x1f]/g, "_").trim() || "untitled";
+}
+
 export async function fileHandler(req: Request, res: Response) {
   const jobId = req.params.jobId as string;
   const job = getJob(jobId);
@@ -92,7 +96,9 @@ export async function fileHandler(req: Request, res: Response) {
     throw new NotFoundError("File");
   }
 
-  res.download(filePath, `${jobId}.mp3`, (err) => {
+  const filename = job.title ? `${sanitizeFilename(job.title)}.mp3` : `${jobId}.mp3`;
+
+  res.download(filePath, filename, (err) => {
     if (!err) {
       deleteJob(jobId);
       fs.unlink(filePath, () => {});

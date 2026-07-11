@@ -3,14 +3,15 @@ export type JobStatus = "pending" | "downloading" | "done" | "error";
 export interface Job {
   status: JobStatus;
   progress: number;
+  title?: string;
   filePath?: string;
   error?: string;
 }
 
 const jobs = new Map<string, Job>();
 
-export function createJob(jobId: string) {
-  jobs.set(jobId, { status: "pending", progress: 0 });
+export function createJob(jobId: string, title?: string) {
+  jobs.set(jobId, { status: "pending", progress: 0, title });
 }
 
 export function updateJob(jobId: string, data: Partial<Job>) {
